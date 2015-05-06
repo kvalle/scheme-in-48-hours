@@ -51,7 +51,13 @@ parseString = do
                 return $ String x
 
 parseEscapedChar :: Parser Char
-parseEscapedChar = char '\\' >> char '"' >> return '"'
+parseEscapedChar = do
+    char '\\'
+    x <- oneOf "\\\"nrt"
+    return $ case x of
+                '"'  -> x
+                '\\' -> x
+                _    -> ' '
 
 parseStringChar :: Parser Char
 parseStringChar = parseEscapedChar <|> (noneOf "\"")
