@@ -48,5 +48,13 @@ parseString = do
                 char '"'
                 return $ String x
 
+parseNumber' :: Parser LispVal
+parseNumber' = liftM (Number . read) $ many1 digit
+
+parseNumber'' :: Parser LispVal
+parseNumber'' = do
+    digits <- many1 digit
+    return $ (Number . read) digits     
+
 parseNumber :: Parser LispVal
-parseNumber = liftM (Number . read) $ many1 digit
+parseNumber = many1 digit >>= return . Number . read
