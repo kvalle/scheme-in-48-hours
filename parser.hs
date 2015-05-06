@@ -5,7 +5,9 @@ import Control.Monad
 main :: IO ()
 main = do 
     args <- getArgs
-    putStrLn (readExpr (args !! 0))
+    let src = (args !! 0)
+    putStrLn ("Source is:   " ++ src)
+    putStrLn (readExpr src)
 
 data LispVal = Atom String
              | List [LispVal]
@@ -21,7 +23,7 @@ symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 readExpr :: String -> String
 readExpr input = case parse parseExpr "lisp" input of
     Left err -> "No match: " ++ show err
-    Right val -> "Found value"
+    Right val -> "Found value: " ++ show val
 
 spaces :: Parser ()
 spaces = skipMany1 space
@@ -44,9 +46,15 @@ parseAtom = do
 parseString :: Parser LispVal
 parseString = do
                 char '"'
-                x <- many (noneOf "\"")
+                x <- many parseStringChar
                 char '"'
                 return $ String x
+
+parseEscapedChar :: Parser Char
+parseEscapedChar = char '\\' >> char '"' >> return '"'
+
+parseStringChar :: Parser Char
+parseStringChar = parseEscapedChar <|> (noneOf "\"")
 
 parseNumber' :: Parser LispVal
 parseNumber' = liftM (Number . read) $ many1 digit
