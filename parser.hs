@@ -60,15 +60,7 @@ parseEscapedChar = do
                 _    -> ' '
 
 parseStringChar :: Parser Char
-parseStringChar = parseEscapedChar <|> (noneOf "\"")
-
-parseNumber' :: Parser LispVal
-parseNumber' = liftM (Number . read) $ many1 digit
-
-parseNumber'' :: Parser LispVal
-parseNumber'' = do
-    digits <- many1 digit
-    return $ (Number . read) digits     
+parseStringChar = parseEscapedChar <|> (noneOf "\"")   
 
 parseNumber :: Parser LispVal
 parseNumber = many1 digit >>= return . Number . read
