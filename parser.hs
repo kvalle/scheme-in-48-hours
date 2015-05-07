@@ -16,6 +16,7 @@ data LispVal = Atom String
              | Number Integer
              | String String
              | Bool Bool
+             | Character Char
             deriving (Show)
 
 symbol :: Parser Char
@@ -34,6 +35,7 @@ parseExpr = parseAtom
          <|> parseBool
          <|> parseString
          <|> parseNumber
+         <|> parseCharacter
 
 parseBool :: Parser LispVal
 parseBool = true <|> false 
@@ -86,3 +88,20 @@ readBin = foldl1 (\acc digit -> acc * 2 + digit) . map toDigit
 
 parseRadix :: Parser Char
 parseRadix = (char '#' >> oneOf "bodx") <|> return 'd'
+
+parseCharacter :: Parser LispVal
+parseCharacter = 
+    string "#\\" >> (try parseCharacterSingle <|> parseCharacterNamed) >>= return . Character
+
+parseCharacterNamed :: Parser Char
+parseCharacterNamed = do
+    s <- (string "newline" <|> string "space")
+    case s of 
+        "newline" -> return '\n'
+        "space"   -> return ' '
+
+parseCharacterSingle :: Parser Char
+parseCharacterSingle = do 
+    x <- anyChar
+    notFollowedBy alphaNum
+    return x
