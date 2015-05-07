@@ -73,10 +73,16 @@ parseNumber :: Parser LispVal
 parseNumber = do
     r <- parseRadix
     let reader = case r of
+            'b' -> readBin
             'o' -> fst . head . readOct
             'd' -> read
             'x' -> fst . head . readHex
     many1 digit >>= return . Number . reader
+
+readBin :: String -> Integer
+readBin = foldl1 (\acc digit -> acc * 2 + digit) . map toDigit
+    where toDigit '1' = 1
+          toDigit _   = 0
 
 parseRadix :: Parser Char
 parseRadix = (char '#' >> oneOf "bodx") <|> return 'd'
