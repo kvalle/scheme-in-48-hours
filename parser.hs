@@ -16,6 +16,7 @@ data LispVal = Atom String
              | List [LispVal]
              | DottedList [LispVal] LispVal
              | Number Integer
+             | Float Float
              | String String
              | Bool Bool
              | Character Char
@@ -36,6 +37,7 @@ parseExpr :: Parser LispVal
 parseExpr = parseAtom
          <|> try parseBool
          <|> try parseString
+         <|> try parseFloat
          <|> try parseNumber
          <|> try parseCharacter
 
@@ -90,6 +92,13 @@ readBin = foldl1 (\acc digit -> acc * 2 + digit) . map toDigit
 
 parseNumberRadix :: Parser Char
 parseNumberRadix = (try (char '#' >> oneOf "bodx")) <|> return 'd'
+
+parseFloat :: Parser LispVal
+parseFloat = do
+    d1 <- many1 digit
+    char '.'
+    d2 <- many1 digit
+    return $ Float $ fst . head . readFloat $ d1 ++ ['.'] ++ d2
 
 parseCharacter :: Parser LispVal
 parseCharacter = 
