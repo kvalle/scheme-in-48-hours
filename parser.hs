@@ -34,10 +34,10 @@ spaces = skipMany1 space
 
 parseExpr :: Parser LispVal
 parseExpr = parseAtom
-         <|> parseBool
-         <|> parseString
-         <|> parseNumber
-         <|> parseCharacter
+         <|> try parseBool
+         <|> try parseString
+         <|> try parseNumber
+         <|> try parseCharacter
 
 parseBool :: Parser LispVal
 parseBool = true <|> false 
