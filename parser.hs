@@ -3,11 +3,13 @@ import System.Environment
 import Control.Monad
 import Numeric
 
+import Debug.Trace
+
 main :: IO ()
 main = do 
     args <- getArgs
     let src = (args !! 0)
-    putStrLn ("Source is:   " ++ src)
+    putStrLn ("Source is:   >>>" ++ src ++ "<<<")
     putStrLn (readExpr src)
 
 data LispVal = Atom String
@@ -25,7 +27,7 @@ symbol = oneOf "!$%&|*+-/:<=>?@^_~"
 readExpr :: String -> String
 readExpr input = case parse parseExpr "lisp" input of
     Left err -> "No match: " ++ show err
-    Right val -> "Found value: " ++ show val
+    Right val -> "Found value: >>>" ++ show val ++ "<<<"
 
 spaces :: Parser ()
 spaces = skipMany1 space
@@ -59,6 +61,9 @@ parseString = do
                 char '"'
                 return $ String x
 
+parseStringChar :: Parser Char
+parseStringChar = parseEscapedChar <|> (noneOf "\"")
+
 parseEscapedChar :: Parser Char
 parseEscapedChar = do
     char '\\'
@@ -68,12 +73,9 @@ parseEscapedChar = do
                 '\\' -> x
                 _    -> ' '
 
-parseStringChar :: Parser Char
-parseStringChar = parseEscapedChar <|> (noneOf "\"")
-
 parseNumber :: Parser LispVal
 parseNumber = do
-    r <- parseRadix
+    r <- parseNumberRadix
     let reader = case r of
             'b' -> readBin
             'o' -> fst . head . readOct
@@ -86,8 +88,8 @@ readBin = foldl1 (\acc digit -> acc * 2 + digit) . map toDigit
     where toDigit '1' = 1
           toDigit _   = 0
 
-parseRadix :: Parser Char
-parseRadix = (char '#' >> oneOf "bodx") <|> return 'd'
+parseNumberRadix :: Parser Char
+parseNumberRadix = (try (char '#' >> oneOf "bodx")) <|> return 'd'
 
 parseCharacter :: Parser LispVal
 parseCharacter = 
