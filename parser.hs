@@ -1,6 +1,7 @@
 import Text.ParserCombinators.Parsec hiding (spaces)
 import System.Environment
 import Control.Monad
+import Numeric
 
 main :: IO ()
 main = do 
@@ -63,4 +64,14 @@ parseStringChar :: Parser Char
 parseStringChar = parseEscapedChar <|> (noneOf "\"")   
 
 parseNumber :: Parser LispVal
-parseNumber = many1 digit >>= return . Number . read
+parseNumber = do
+    r <- parseRadix
+    let reader = case r of
+--          'b' -> undefined
+            'o' -> fst . head . readOct
+            'd' -> read
+            'x' -> fst . head . readHex
+    many1 digit >>= return . Number . reader
+
+parseRadix :: Parser Char
+parseRadix = (char '#' >> oneOf "bodx") <|> return 'd'
