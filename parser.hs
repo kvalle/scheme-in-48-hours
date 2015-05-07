@@ -19,7 +19,7 @@ data LispVal = Atom String
             deriving (Show)
 
 symbol :: Parser Char
-symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
+symbol = oneOf "!$%&|*+-/:<=>?@^_~"
 
 readExpr :: String -> String
 readExpr input = case parse parseExpr "lisp" input of
@@ -31,8 +31,14 @@ spaces = skipMany1 space
 
 parseExpr :: Parser LispVal
 parseExpr = parseAtom
+         <|> parseBool
          <|> parseString
          <|> parseNumber
+
+parseBool :: Parser LispVal
+parseBool = true <|> false 
+    where true  = try (string "#f") >> return (Bool False)
+          false = try (string "#t") >> return (Bool True)
 
 parseAtom :: Parser LispVal
 parseAtom = do 
@@ -61,13 +67,12 @@ parseEscapedChar = do
                 _    -> ' '
 
 parseStringChar :: Parser Char
-parseStringChar = parseEscapedChar <|> (noneOf "\"")   
+parseStringChar = parseEscapedChar <|> (noneOf "\"")
 
 parseNumber :: Parser LispVal
 parseNumber = do
     r <- parseRadix
     let reader = case r of
---          'b' -> undefined
             'o' -> fst . head . readOct
             'd' -> read
             'x' -> fst . head . readHex
