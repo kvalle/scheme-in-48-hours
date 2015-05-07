@@ -13,13 +13,13 @@ main = do
     putStrLn (readExpr src)
 
 data LispVal = Atom String
-             | List [LispVal]
-             | DottedList [LispVal] LispVal
              | Number Integer
              | Float Float
              | String String
              | Bool Bool
              | Character Char
+             | List [LispVal]
+             | DottedList [LispVal] LispVal
             deriving (Show)
 
 symbol :: Parser Char
@@ -40,6 +40,11 @@ parseExpr = parseAtom
          <|> try parseFloat
          <|> try parseNumber
          <|> try parseCharacter
+         <|> parseQuoted
+         <|> do char '('
+                x <- try parseList <|> parseDottedList
+                char ')'
+                return x
 
 parseBool :: Parser LispVal
 parseBool = true <|> false 
@@ -116,3 +121,18 @@ parseCharacterSingle = do
     x <- anyChar
     notFollowedBy alphaNum
     return x
+
+parseList :: Parser LispVal
+parseList = liftM List $ sepBy parseExpr spaces
+
+parseDottedList :: Parser LispVal
+parseDottedList = do
+    head <- endBy parseExpr spaces
+    tail <- char '.' >> spaces >> parseExpr
+    return $ DottedList head tail
+
+parseQuoted :: Parser LispVal
+parseQuoted = do
+    char '\''
+    x <- parseExpr
+    return $ List [Atom "quote", x]
