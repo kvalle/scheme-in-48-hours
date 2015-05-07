@@ -1,4 +1,5 @@
 import Text.ParserCombinators.Parsec hiding (spaces)
+import Data.Array
 import System.Environment
 import Control.Monad
 import Numeric
@@ -20,6 +21,7 @@ data LispVal = Atom String
              | Character Char
              | List [LispVal]
              | DottedList [LispVal] LispVal
+             | Vector (Array Int LispVal)
             deriving (Show)
 
 symbol :: Parser Char
@@ -36,13 +38,14 @@ spaces = skipMany1 space
 parseExpr :: Parser LispVal
 parseExpr = parseAtom
          <|> try parseBool
+         <|> try parseQuote
+         <|> try parseUnquote
+         <|> try parseQuasiquote
          <|> try parseString
          <|> try parseFloat
          <|> try parseNumber
+         <|> try parseVector
          <|> try parseCharacter
-         <|> parseQuote
-         <|> parseUnquote
-         <|> parseQuasiquote
          <|> do char '('
                 x <- try parseList <|> parseDottedList
                 char ')'
@@ -150,3 +153,10 @@ parseQuasiquote = do
     char '`'
     x <- parseExpr
     return $ List [Atom "quasiquote", x]
+
+parseVector :: Parser LispVal
+parseVector = do
+    string "#("
+    arrayValues <- sepBy parseExpr spaces
+    char ')'
+    return $ Vector $ listArray (0, length arrayValues - 1) arrayValues
