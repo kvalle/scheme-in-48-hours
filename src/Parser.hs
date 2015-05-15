@@ -1,3 +1,5 @@
+module Parser where
+
 import Text.ParserCombinators.Parsec hiding (spaces)
 import Data.Array
 import System.Environment
