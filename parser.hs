@@ -24,16 +24,10 @@ data LispVal = Atom String
              | Vector (Array Int LispVal)
             deriving (Show)
 
-symbol :: Parser Char
-symbol = oneOf "!$%&|*+-/:<=>?@^_~"
-
 readExpr :: String -> String
 readExpr input = case parse parseExpr "lisp" input of
     Left err -> "No match: " ++ show err
     Right val -> "Found value: >>>" ++ show val ++ "<<<"
-
-spaces :: Parser ()
-spaces = skipMany1 space
 
 parseExpr :: Parser LispVal
 parseExpr = parseAtom
@@ -46,10 +40,33 @@ parseExpr = parseAtom
          <|> try parseNumber
          <|> try parseVector
          <|> try parseCharacter
-         <|> do char '('
-                x <- try parseList <|> parseDottedList
-                char ')'
-                return x
+         <|> parseList
+
+parseList :: Parser LispVal
+parseList = do
+        char '('
+        exps <- sepEndBy parseExpr spaces
+        end <- parseListEnd
+        char ')'
+        return $ case end of
+            Just e  -> DottedList exps e
+            Nothing -> List exps
+    where
+        parseListEnd = (char '.' >> spaces >> parseExpr >>= return . Just) 
+                    <|> return Nothing
+
+parseVector :: Parser LispVal
+parseVector = do
+    string "#("
+    arrayValues <- sepBy parseExpr spaces
+    char ')'
+    return $ Vector $ listArray (0, length arrayValues - 1) arrayValues
+
+symbol :: Parser Char
+symbol = oneOf "!$%&|*+-/:<=>?@^_~"
+
+spaces :: Parser ()
+spaces = skipMany1 space
 
 parseBool :: Parser LispVal
 parseBool = true <|> false 
@@ -127,15 +144,6 @@ parseCharacterSingle = do
     notFollowedBy alphaNum
     return x
 
-parseList :: Parser LispVal
-parseList = liftM List $ sepBy parseExpr spaces
-
-parseDottedList :: Parser LispVal
-parseDottedList = do
-    head <- endBy parseExpr spaces
-    tail <- char '.' >> spaces >> parseExpr
-    return $ DottedList head tail
-
 parseQuote :: Parser LispVal
 parseQuote = do
     char '\''
@@ -153,10 +161,3 @@ parseQuasiquote = do
     char '`'
     x <- parseExpr
     return $ List [Atom "quasiquote", x]
-
-parseVector :: Parser LispVal
-parseVector = do
-    string "#("
-    arrayValues <- sepBy parseExpr spaces
-    char ')'
-    return $ Vector $ listArray (0, length arrayValues - 1) arrayValues
