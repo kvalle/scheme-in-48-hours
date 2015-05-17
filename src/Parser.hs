@@ -47,8 +47,10 @@ parseExpr = try parseBool
 parseList :: Parser LispVal
 parseList = do
         char '('
+        optionalSpaces
         exps <- sepEndBy parseExpr spaces
         end <- parseListEnd
+        optionalSpaces
         char ')'
         return $ case end of
             Just e  -> DottedList exps e
@@ -60,12 +62,16 @@ parseList = do
 parseVector :: Parser LispVal
 parseVector = do
     string "#("
-    arrayValues <- sepBy parseExpr spaces
+    optionalSpaces
+    arrayValues <- sepEndBy parseExpr spaces
     char ')'
     return $ Vector $ listArray (0, length arrayValues - 1) arrayValues
 
 symbol :: Parser Char
 symbol = oneOf "!$%&|*+-/:<=>?@^_~"
+
+optionalSpaces :: Parser ()
+optionalSpaces = skipMany space
 
 spaces :: Parser ()
 spaces = skipMany1 space

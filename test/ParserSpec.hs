@@ -87,6 +87,8 @@ spec = do
             "#(foo #b101)" `shouldParseAs` Vector (listArray (0,1) [Atom "foo", Number 5])
         it "should parse an empty vector" $
             "#()" `shouldParseAs` Vector (listArray (0,-1) [])
+        it "should ignore spaces at beginning and end" $
+            "#(  1 2 3  )" `shouldParseAs` Vector (listArray (0,2) [Number 1, Number 2, Number 3])
 
     describe "parsing characters" $ do
         it "should parse hash+backslash followed by char as Character" $ do
@@ -111,3 +113,6 @@ spec = do
         it "should parse nested lists" $
             "(1 (42 . (foo bar)) #f)" `shouldParseAs`
                 List [Number 1, DottedList [Number 42] (List [Atom "foo", Atom "bar"]), Bool False]
+        it "should ignore spaces at beginning and end" $ do
+            "(  1 2 3  )" `shouldParseAs` List [Number 1, Number 2, Number 3]
+            "(  1 2 . 3  )" `shouldParseAs` DottedList [Number 1, Number 2] (Number 3)
