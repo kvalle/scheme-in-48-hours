@@ -1,5 +1,6 @@
 module ParserSpec where
 
+import Data.Array
 import Test.Hspec
 import Test.Hspec.QuickCheck (prop)
 import Text.ParserCombinators.Parsec hiding (spaces)
@@ -81,7 +82,32 @@ spec = do
             ((\n -> 
                 p (show n) == p ("#d" ++ (show n))) :: Integer -> Bool)
 
-    -- TODO
-    --describe "parsing vectors" $ do
-    --describe "parsing characters" $ do
-    --describe "parsing lists" $ do
+    describe "parsing vectors" $ do
+        it "should parse vectors" $
+            "#(foo #b101)" `shouldParseAs` Vector (listArray (0,1) [Atom "foo", Number 5])
+        it "should parse an empty vector" $
+            "#()" `shouldParseAs` Vector (listArray (0,-1) [])
+
+    describe "parsing characters" $ do
+        it "should parse hash+backslash followed by char as Character" $ do
+            "#\\x" `shouldParseAs` Character 'x'
+            "#\\λ" `shouldParseAs` Character 'λ'
+            "#\\ " `shouldParseAs` Character ' '
+        it "should parse named characters" $ do
+            "#\\space" `shouldParseAs` Character ' '
+            "#\\newline" `shouldParseAs` Character '\n'
+
+    describe "parsing lists" $ do
+        it "should parse empty lists" $
+            "()" `shouldParseAs` List []
+        it "should parse proper lists with items" $ do
+            "(1 2 3)" `shouldParseAs` List [Number 1, Number 2, Number 3]
+            "(1 2 3)" `shouldParseAs` List [Number 1, Number 2, Number 3]
+            "(foo 'bar)" `shouldParseAs` List [Atom "foo", List [Atom "quote", Atom "bar"]]
+        it "should parse dotted lists" $ do
+            "(1 2 . 3)" `shouldParseAs` DottedList [Number 1, Number 2] (Number 3)
+            "(foo . 'bar)" `shouldParseAs` DottedList [Atom "foo"] (List [Atom "quote", Atom "bar"])
+            "(. baz)" `shouldParseAs` DottedList [] (Atom "baz")
+        it "should parse nested lists" $
+            "(1 (42 . (foo bar)) #f)" `shouldParseAs`
+                List [Number 1, DottedList [Number 42] (List [Atom "foo", Atom "bar"]), Bool False]
