@@ -8,6 +8,11 @@ import Debug.Trace
 
 import AST
 
+readExpr :: String -> LispVal
+readExpr input = case parse parseExpr "lisp" input of
+    Left err  -> error $ "Error: " ++ show err
+    Right val -> val
+
 parseExpr :: Parser LispVal
 parseExpr = try parseBool
          <|> try parseQuote
