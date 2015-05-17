@@ -3,8 +3,8 @@ module AST where
 import Data.Array
 
 data LispVal = Atom String
-             | Number Integer
-             | Float Float
+             | Integer Integer
+             | Real Float
              | String String
              | Bool Bool
              | Character Char
@@ -16,8 +16,8 @@ data LispVal = Atom String
 instance Show LispVal where
     show (String contents) = "\"" ++ contents ++ "\""
     show (Atom name) = name
-    show (Number contents) = show contents
-    show (Float contents) = show contents
+    show (Integer contents) = show contents
+    show (Real contents) = show contents
     show (Character c) = "#\\" ++ [c]
     show (Bool True) = "#t"
     show (Bool False) = "#f"

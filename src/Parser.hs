@@ -18,8 +18,8 @@ parseExpr = try parseBool
          <|> try parseUnquote
          <|> try parseQuasiquote
          <|> try parseString
-         <|> try parseFloat
-         <|> try parseNumber
+         <|> try parseReal
+         <|> try parseInteger
          <|> try parseAtom
          <|> try parseVector
          <|> try parseCharacter
@@ -91,9 +91,9 @@ parseEscapedChar = do
                 '\\' -> x
                 _    -> ' '
 
-parseNumber :: Parser LispVal
-parseNumber = do
-    r <- parseNumberRadix
+parseInteger :: Parser LispVal
+parseInteger = do
+    r <- parseRadix
     sign <- parseSign
     let reader = case r of
             'b' -> readBin
@@ -107,8 +107,8 @@ parseNumber = do
             'x' -> many1 (oneOf $ ['0'..'9'] ++ ['A'..'F'] ++ ['a'..'f'])
     number <- parseDigits >>= return . reader
     return $ case sign of
-        Just '-'  -> Number (-number)
-        otherwise -> Number number
+        Just '-'  -> Integer (-number)
+        otherwise -> Integer number
 
 readBin :: String -> Integer
 readBin = foldl1 (\acc digit -> acc * 2 + digit) . map toDigit
@@ -119,15 +119,15 @@ parseSign :: Parser (Maybe Char)
 parseSign = try (oneOf "+-" >>= return . Just) 
          <|> return Nothing
 
-parseNumberRadix :: Parser Char
-parseNumberRadix = (try (char '#' >> oneOf "bodx")) <|> return 'd'
+parseRadix :: Parser Char
+parseRadix = (try (char '#' >> oneOf "bodx")) <|> return 'd'
 
-parseFloat :: Parser LispVal
-parseFloat = do
+parseReal :: Parser LispVal
+parseReal = do
     d1 <- many1 digit
     char '.'
     d2 <- many1 digit
-    return $ Float $ fst . head . readFloat $ d1 ++ ['.'] ++ d2
+    return $ Real $ fst . head . readFloat $ d1 ++ ['.'] ++ d2
 
 parseCharacter :: Parser LispVal
 parseCharacter = 

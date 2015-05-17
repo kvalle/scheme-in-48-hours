@@ -47,44 +47,44 @@ spec = do
             -- parsing: "say \"hey\""
             "\"say \\\"hey\\\"\"" `shouldParseAs` String "say \"hey\""
 
-    describe "parsing floats" $ do
-        it "should parse numbers with decimal point as floats" $ do
-            "42.0" `shouldParseAs` Float 42.0
-            "3.1415" `shouldParseAs` Float 3.1415
+    describe "parsing real numbers" $ do
+        it "should parse numbers with decimal point as real numbers" $ do
+            "42.0" `shouldParseAs` Real 42.0
+            "3.1415" `shouldParseAs` Real 3.1415
 
-    describe "parsing numbers" $ do
-        it "should parse regular numbers as decimals" $ do
-            "42" `shouldParseAs` Number 42
-            "3" `shouldParseAs` Number 3
+    describe "parsing integers" $ do
+        it "should parse regular integers as decimals" $ do
+            "42" `shouldParseAs` Integer 42
+            "3" `shouldParseAs` Integer 3
         it "should parse numbers with explicit decimal radix" $ do
-            "#d42" `shouldParseAs` Number 42
-            "#d3" `shouldParseAs` Number 3
+            "#d42" `shouldParseAs` Integer 42
+            "#d3" `shouldParseAs` Integer 3
         it "should parse binary numbers" $ do
-            "#b101010" `shouldParseAs` Number 42
-            "#b11" `shouldParseAs` Number 3
+            "#b101010" `shouldParseAs` Integer 42
+            "#b11" `shouldParseAs` Integer 3
         it "should parse octal numbers" $ do
-            "#o52" `shouldParseAs` Number 42
-            "#o3" `shouldParseAs` Number 3
+            "#o52" `shouldParseAs` Integer 42
+            "#o3" `shouldParseAs` Integer 3
         it "should parse hexadecimal numbers" $ do
-            "#x2A" `shouldParseAs` Number 42
-            "#x3" `shouldParseAs` Number 3
+            "#x2A" `shouldParseAs` Integer 42
+            "#x3" `shouldParseAs` Integer 3
         it "should parse negative numbers" $ do
-            "-42" `shouldParseAs` Number (-42)
-            "#b-101010" `shouldParseAs` Number (-42)
-            "#o-52" `shouldParseAs` Number (-42)
-            "#d-42" `shouldParseAs` Number (-42)
-            "#x-2A" `shouldParseAs` Number (-42)
+            "-42" `shouldParseAs` Integer (-42)
+            "#b-101010" `shouldParseAs` Integer (-42)
+            "#o-52" `shouldParseAs` Integer (-42)
+            "#d-42" `shouldParseAs` Integer (-42)
+            "#x-2A" `shouldParseAs` Integer (-42)
         prop "numbers without radix are treated as decimals" $ 
             ((\n -> 
                 parse (show n) == parse ("#d" ++ (show n))) :: Integer -> Bool)
 
     describe "parsing vectors" $ do
         it "should parse vectors" $
-            "#(foo #b101)" `shouldParseAs` Vector (listArray (0,1) [Atom "foo", Number 5])
+            "#(foo #b101)" `shouldParseAs` Vector (listArray (0,1) [Atom "foo", Integer 5])
         it "should parse an empty vector" $
             "#()" `shouldParseAs` Vector (listArray (0,-1) [])
         it "should ignore spaces at beginning and end" $
-            "#(  1 2 3  )" `shouldParseAs` Vector (listArray (0,2) [Number 1, Number 2, Number 3])
+            "#(  1 2 3  )" `shouldParseAs` Vector (listArray (0,2) [Integer 1, Integer 2, Integer 3])
 
     describe "parsing characters" $ do
         it "should parse hash+backslash followed by char as Character" $ do
@@ -99,19 +99,19 @@ spec = do
         it "should parse empty lists" $
             "()" `shouldParseAs` List []
         it "should parse proper lists with items" $ do
-            "(1 2 3)" `shouldParseAs` List [Number 1, Number 2, Number 3]
-            "(1 2 3)" `shouldParseAs` List [Number 1, Number 2, Number 3]
+            "(1 2 3)" `shouldParseAs` List [Integer 1, Integer 2, Integer 3]
+            "(1 2 3)" `shouldParseAs` List [Integer 1, Integer 2, Integer 3]
             "(foo 'bar)" `shouldParseAs` List [Atom "foo", List [Atom "quote", Atom "bar"]]
         it "should parse dotted lists" $ do
-            "(1 2 . 3)" `shouldParseAs` DottedList [Number 1, Number 2] (Number 3)
+            "(1 2 . 3)" `shouldParseAs` DottedList [Integer 1, Integer 2] (Integer 3)
             "(foo . 'bar)" `shouldParseAs` DottedList [Atom "foo"] (List [Atom "quote", Atom "bar"])
             "(. baz)" `shouldParseAs` DottedList [] (Atom "baz")
         it "should parse nested lists" $
             "(1 (42 . (foo bar)) #f)" `shouldParseAs`
-                List [Number 1, DottedList [Number 42] (List [Atom "foo", Atom "bar"]), Bool False]
+                List [Integer 1, DottedList [Integer 42] (List [Atom "foo", Atom "bar"]), Bool False]
         it "should ignore spaces at beginning and end" $ do
-            "(  1 2 3  )" `shouldParseAs` List [Number 1, Number 2, Number 3]
-            "(  1 2 . 3  )" `shouldParseAs` DottedList [Number 1, Number 2] (Number 3)
+            "(  1 2 3  )" `shouldParseAs` List [Integer 1, Integer 2, Integer 3]
+            "(  1 2 . 3  )" `shouldParseAs` DottedList [Integer 1, Integer 2] (Integer 3)
 
 
 -- Test helpers

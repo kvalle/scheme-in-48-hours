@@ -13,8 +13,8 @@ spec = do
             Bool True `shouldEvalAs` Bool True
             Bool False `shouldEvalAs` Bool False
             String "foobar" `shouldEvalAs` String "foobar"
-            Number 42 `shouldEvalAs` Number 42
-            Float 3.1415 `shouldEvalAs` Float 3.1415
+            Integer 42 `shouldEvalAs` Integer 42
+            Real 3.1415 `shouldEvalAs` Real 3.1415
 
     describe "evaluating quotes" $ do
         it "should evaluate to the quoted value" $ do
@@ -24,9 +24,9 @@ spec = do
 
     describe "evaluating calls to primitive functions" $ do
         it "should do addition" $ do
-            readExpr "(+ 2 2)" `shouldEvalAs` Number 4
-            readExpr "(+ 2 (- 4 1))" `shouldEvalAs` Number 5
-            readExpr "(- (+ 4 6 3) 3 5 2)" `shouldEvalAs` Number 3
+            readExpr "(+ 2 2)" `shouldEvalAs` Integer 4
+            readExpr "(+ 2 (- 4 1))" `shouldEvalAs` Integer 5
+            readExpr "(- (+ 4 6 3) 3 5 2)" `shouldEvalAs` Integer 3
 
 -- Test helpers
 

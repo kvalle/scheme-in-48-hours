@@ -13,15 +13,15 @@ spec = do
             show (Bool False) `shouldBe` "#f"
         it "should show atoms" $ do
             show (Atom "foo") `shouldBe` "foo"
-        it "should show numbers" $ do
-            show (Number 42) `shouldBe` "42"
-            show (Number (-42)) `shouldBe` "-42"
+        it "should show integers" $ do
+            show (Integer 42) `shouldBe` "42"
+            show (Integer (-42)) `shouldBe` "-42"
         it "should show strings" $ do
             show (String "foobar") `shouldBe` "\"foobar\""
             show (String "foo\"bar") `shouldBe` "\"foo\"bar\""
-        it "should show floats" $ do
-            show (Float 3.1415) `shouldBe` "3.1415"
-            show (Float 42.0) `shouldBe` "42.0"
+        it "should show reals" $ do
+            show (Real 3.1415) `shouldBe` "3.1415"
+            show (Real 42.0) `shouldBe` "42.0"
         it "should show characters" $ do
             show (Character ' ') `shouldBe` "#\\ "
             show (Character '\n') `shouldBe` "#\\\n"
@@ -29,13 +29,13 @@ spec = do
             show (Character 'x') `shouldBe` "#\\x"
         it "should show quoted values" $ do
             show (List [Atom "quote", Atom "foo"]) `shouldBe` "'foo"
-            show (List [Atom "quote", List [Number 1, Number 2]]) `shouldBe` "'(1 2)"
+            show (List [Atom "quote", List [Integer 1, Integer 2]]) `shouldBe` "'(1 2)"
         it "should show unquoted values" $ do
             show (List [Atom "unquote", Atom "foo"]) `shouldBe` ",foo"
-            show (List [Atom "unquote", List [Number 1, Number 2]]) `shouldBe` ",(1 2)"
+            show (List [Atom "unquote", List [Integer 1, Integer 2]]) `shouldBe` ",(1 2)"
         it "should show quasiquoted values" $ do
             show (List [Atom "quasiquote", Atom "foo"]) `shouldBe` "`foo"
-            show (List [Atom "quasiquote", List [Number 1, Number 2]]) `shouldBe` "`(1 2)"
+            show (List [Atom "quasiquote", List [Integer 1, Integer 2]]) `shouldBe` "`(1 2)"
         it "should show lists" $ do
             show (List [Atom "foo", Atom "bar"]) `shouldBe` "(foo bar)"
             show (List [Atom "foo", List [Atom "bar", Atom "baz"]]) `shouldBe` "(foo (bar baz))"
