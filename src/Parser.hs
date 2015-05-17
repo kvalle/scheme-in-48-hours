@@ -2,18 +2,10 @@ module Parser where
 
 import Text.ParserCombinators.Parsec hiding (spaces)
 import Data.Array
-import System.Environment
 import Control.Monad
 import Numeric
 
 import Debug.Trace
-
-main :: IO ()
-main = do 
-    args <- getArgs
-    let src = (args !! 0)
-    putStrLn ("Source is:   >>>" ++ src ++ "<<<")
-    putStrLn (readExpr src)
 
 data LispVal = Atom String
              | Number Integer
@@ -46,8 +38,8 @@ unwordsList = unwords . map show
 
 readExpr :: String -> String
 readExpr input = case parse parseExpr "lisp" input of
-    Left err  -> "No match: " ++ show err
-    Right val -> "Found value: >>>" ++ show val ++ "<<<"
+    Left err  -> "Error: " ++ show err
+    Right val -> show val
 
 parseExpr :: Parser LispVal
 parseExpr = try parseBool
