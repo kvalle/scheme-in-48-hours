@@ -1,11 +1,16 @@
 module ParserSpec where
 
 import Test.Hspec
+import Test.Hspec.QuickCheck (prop)
 import Text.ParserCombinators.Parsec hiding (spaces)
 import Parser
 
+p :: String -> Either ParseError LispVal
+p = parse parseExpr "test"
+
+shouldParseAs :: String -> LispVal -> Expectation
 input `shouldParseAs` result = 
-    (parse parseExpr "test" input) `shouldBe` Right result
+    (p input) `shouldBe` Right result
 
 spec :: Spec
 spec = do
@@ -49,3 +54,28 @@ spec = do
         it "should parse numbers with decimal point as floats" $ do
             "42.0" `shouldParseAs` Float 42.0
             "3.1415" `shouldParseAs` Float 3.1415
+
+    describe "parsing numbers" $ do
+        it "should parse regular numbers as decimals" $ do
+            "42" `shouldParseAs` Number 42
+            "3" `shouldParseAs` Number 3
+        it "should parse numbers with explicit decimal radix" $ do
+            "#d42" `shouldParseAs` Number 42
+            "#d3" `shouldParseAs` Number 3
+        it "should parse binary numbers" $ do
+            "#b101010" `shouldParseAs` Number 42
+            "#b11" `shouldParseAs` Number 3
+        it "should parse octal numbers" $ do
+            "#o52" `shouldParseAs` Number 42
+            "#o3" `shouldParseAs` Number 3
+        it "should parse negative numbers" $ do
+            "-1" `shouldParseAs` Number (-1)
+            "#d-42" `shouldParseAs` Number (-42)
+            "#b-101010" `shouldParseAs` Number (-42)
+        prop "numbers without radix are treated as decimals" $ 
+            ((\n -> p (show n) == p ("#d" ++ (show n))) :: Integer -> Bool)
+
+    -- TODO
+    --describe "parsing vectors" $ do
+    --describe "parsing characters" $ do
+    --describe "parsing lists" $ do

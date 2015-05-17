@@ -33,13 +33,13 @@ readExpr input = case parse parseExpr "lisp" input of
 
 parseExpr :: Parser LispVal
 parseExpr = try parseBool
-         <|> try parseAtom
          <|> try parseQuote
          <|> try parseUnquote
          <|> try parseQuasiquote
          <|> try parseString
          <|> try parseFloat
          <|> try parseNumber
+         <|> try parseAtom
          <|> try parseVector
          <|> try parseCharacter
          <|> parseList
@@ -107,17 +107,25 @@ parseEscapedChar = do
 parseNumber :: Parser LispVal
 parseNumber = do
     r <- parseNumberRadix
+    sign <- parseSign
     let reader = case r of
             'b' -> readBin
             'o' -> fst . head . readOct
             'd' -> read
             'x' -> fst . head . readHex
-    many1 digit >>= return . Number . reader
+    number <- many1 digit >>= return . reader
+    return $ case sign of
+        Just '-'  -> Number (-number)
+        otherwise -> Number number
 
 readBin :: String -> Integer
 readBin = foldl1 (\acc digit -> acc * 2 + digit) . map toDigit
     where toDigit '1' = 1
           toDigit _   = 0
+
+parseSign :: Parser (Maybe Char)
+parseSign = try (oneOf "+-" >>= return . Just) 
+         <|> return Nothing
 
 parseNumberRadix :: Parser Char
 parseNumberRadix = (try (char '#' >> oneOf "bodx")) <|> return 'd'
