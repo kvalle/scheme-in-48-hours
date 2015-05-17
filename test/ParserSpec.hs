@@ -3,15 +3,10 @@ module ParserSpec where
 import Data.Array
 import Test.Hspec
 import Test.Hspec.QuickCheck (prop)
-import Text.ParserCombinators.Parsec hiding (spaces)
+import Text.ParserCombinators.Parsec hiding (spaces, parse)
+import qualified Text.ParserCombinators.Parsec as P
+
 import Parser
-
-p :: String -> Either ParseError LispVal
-p = parse parseExpr "test"
-
-shouldParseAs :: String -> LispVal -> Expectation
-input `shouldParseAs` result = 
-    (p input) `shouldBe` Right result
 
 spec :: Spec
 spec = do
@@ -80,7 +75,7 @@ spec = do
             "#x-2A" `shouldParseAs` Number (-42)
         prop "numbers without radix are treated as decimals" $ 
             ((\n -> 
-                p (show n) == p ("#d" ++ (show n))) :: Integer -> Bool)
+                parse (show n) == parse ("#d" ++ (show n))) :: Integer -> Bool)
 
     describe "parsing vectors" $ do
         it "should parse vectors" $
@@ -116,3 +111,13 @@ spec = do
         it "should ignore spaces at beginning and end" $ do
             "(  1 2 3  )" `shouldParseAs` List [Number 1, Number 2, Number 3]
             "(  1 2 . 3  )" `shouldParseAs` DottedList [Number 1, Number 2] (Number 3)
+
+
+-- Test helpers
+
+parse :: String -> Either ParseError LispVal
+parse = P.parse parseExpr "test"
+
+shouldParseAs :: String -> LispVal -> Expectation
+input `shouldParseAs` result = 
+    (parse input) `shouldBe` Right result
