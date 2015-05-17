@@ -24,11 +24,29 @@ data LispVal = Atom String
              | List [LispVal]
              | DottedList [LispVal] LispVal
              | Vector (Array Int LispVal)
-            deriving (Show, Eq)
+            deriving (Eq)
+
+instance Show LispVal where
+    show (String contents) = "\"" ++ contents ++ "\""
+    show (Atom name) = name
+    show (Number contents) = show contents
+    show (Float contents) = show contents
+    show (Character c) = "#\\" ++ [c]
+    show (Bool True) = "#t"
+    show (Bool False) = "#f"
+    show (List [Atom "quote", val]) = "'" ++ show val
+    show (List [Atom "unquote", val]) = "," ++ show val
+    show (List [Atom "quasiquote", val]) = "`" ++ show val
+    show (List contents) = "(" ++ unwordsList contents ++ ")"
+    show (DottedList head tail) = "(" ++ unwordsList head ++ " . " ++ show tail ++ ")"
+    show (Vector contents) = "#(" ++ unwordsList (elems contents) ++ ")"
+
+unwordsList :: [LispVal] -> String
+unwordsList = unwords . map show
 
 readExpr :: String -> String
 readExpr input = case parse parseExpr "lisp" input of
-    Left err -> "No match: " ++ show err
+    Left err  -> "No match: " ++ show err
     Right val -> "Found value: >>>" ++ show val ++ "<<<"
 
 parseExpr :: Parser LispVal
