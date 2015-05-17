@@ -68,12 +68,18 @@ spec = do
         it "should parse octal numbers" $ do
             "#o52" `shouldParseAs` Number 42
             "#o3" `shouldParseAs` Number 3
+        it "should parse hexadecimal numbers" $ do
+            "#x2A" `shouldParseAs` Number 42
+            "#x3" `shouldParseAs` Number 3
         it "should parse negative numbers" $ do
-            "-1" `shouldParseAs` Number (-1)
-            "#d-42" `shouldParseAs` Number (-42)
+            "-42" `shouldParseAs` Number (-42)
             "#b-101010" `shouldParseAs` Number (-42)
+            "#o-52" `shouldParseAs` Number (-42)
+            "#d-42" `shouldParseAs` Number (-42)
+            "#x-2A" `shouldParseAs` Number (-42)
         prop "numbers without radix are treated as decimals" $ 
-            ((\n -> p (show n) == p ("#d" ++ (show n))) :: Integer -> Bool)
+            ((\n -> 
+                p (show n) == p ("#d" ++ (show n))) :: Integer -> Bool)
 
     -- TODO
     --describe "parsing vectors" $ do

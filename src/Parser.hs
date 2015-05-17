@@ -113,7 +113,12 @@ parseNumber = do
             'o' -> fst . head . readOct
             'd' -> read
             'x' -> fst . head . readHex
-    number <- many1 digit >>= return . reader
+    let parseDigits = case r of
+            'b' -> many1 (oneOf "01")
+            'o' -> many1 (oneOf "01234567")
+            'd' -> many1 digit
+            'x' -> many1 (oneOf $ ['0'..'9'] ++ ['A'..'F'] ++ ['a'..'f'])
+    number <- parseDigits >>= return . reader
     return $ case sign of
         Just '-'  -> Number (-number)
         otherwise -> Number number
