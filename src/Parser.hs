@@ -4,13 +4,12 @@ import Text.ParserCombinators.Parsec hiding (spaces)
 import Data.Array
 import Control.Monad
 import Numeric
-import Debug.Trace
 
 import AST
 
 readExpr :: String -> LispVal
 readExpr input = case parse parseExpr "lisp" input of
-    Left err  -> error $ "Error: " ++ show err
+    Left err  -> error $ "Unable to parse >>" ++ input ++ "<<\nError: " ++ show err
     Right val -> val
 
 parseExpr :: Parser LispVal

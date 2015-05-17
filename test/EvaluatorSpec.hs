@@ -22,6 +22,11 @@ spec = do
         it "should not evaluate the quoted value" $ do
             readExpr "''foo" `shouldEvalAs` readExpr "'foo"
 
+    describe "evaluating calls to primitive functions" $ do
+        it "should do addition" $ do
+            readExpr "(+ 2 2)" `shouldEvalAs` Number 4
+            readExpr "(+ 2 (- 4 1))" `shouldEvalAs` Number 5
+            readExpr "(- (+ 4 6 3) 3 5 2)" `shouldEvalAs` Number 3
 
 -- Test helpers
 
