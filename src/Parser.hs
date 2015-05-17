@@ -24,7 +24,7 @@ data LispVal = Atom String
              | List [LispVal]
              | DottedList [LispVal] LispVal
              | Vector (Array Int LispVal)
-            deriving (Show)
+            deriving (Show, Eq)
 
 readExpr :: String -> String
 readExpr input = case parse parseExpr "lisp" input of
@@ -32,8 +32,8 @@ readExpr input = case parse parseExpr "lisp" input of
     Right val -> "Found value: >>>" ++ show val ++ "<<<"
 
 parseExpr :: Parser LispVal
-parseExpr = parseAtom
-         <|> try parseBool
+parseExpr = try parseBool
+         <|> try parseAtom
          <|> try parseQuote
          <|> try parseUnquote
          <|> try parseQuasiquote
