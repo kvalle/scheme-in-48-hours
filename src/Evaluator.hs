@@ -9,6 +9,7 @@ eval val@(String _) = val
 eval val@(Integer _) = val
 eval val@(Real _) = val
 eval val@(Bool _) = val
+eval val@(Vector _) = val
 eval val@(Character _) = val
 eval (List [Atom "quote", val]) = val
 eval (List (Atom func : args)) = apply func $ map eval args
@@ -24,8 +25,11 @@ primitives = [("+", numericBinop (+)),
               ("mod", numericBinop mod),
               ("quotient", numericBinop quot),
               ("remainder", numericBinop rem),
-              --("symbol?", undefined),
-              --("string?", undefined),
+              ("list?", isList),
+              ("pair?", isPair),
+              ("vector?", isVector),
+              ("string?", isString),
+              ("char?", isChar),
               ("number?", isNumber),
               ("real?", isReal),
               ("integer?", isInteger),
@@ -43,9 +47,32 @@ unpackNum (String n) = let parsed = reads n :: [(Integer, String)] in
 unpackNum (List [n]) = unpackNum n
 unpackNum _ = 0
 
+isList :: [LispVal] -> LispVal
+isList [List _] = Bool True
+isList _        = Bool False
+
+isVector :: [LispVal] -> LispVal
+isVector [Vector _] = Bool True
+isVector _          = Bool False
+
+isPair :: [LispVal] -> LispVal
+isPair [List []]        = Bool False
+isPair [List _]         = Bool True
+isPair [DottedList _ _] = Bool True
+isPair _                = Bool False
+
 isBoolean :: [LispVal] -> LispVal
 isBoolean [Bool _] = Bool True
 isBoolean _        = Bool False
+
+isString :: [LispVal] -> LispVal
+isString [String _] = Bool True
+isString _          = Bool False
+
+isChar :: [LispVal] -> LispVal
+isChar [Character _] = Bool True
+isChar _             = Bool False
+
 
 isInteger :: [LispVal] -> LispVal
 isInteger [Integer _] = Bool True

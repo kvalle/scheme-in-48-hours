@@ -29,7 +29,7 @@ spec = do
             readExpr "(+ 2 (- 4 1))" `shouldEvalAs` Integer 5
             readExpr "(- (+ 4 6 3) 3 5 2)" `shouldEvalAs` Integer 3
 
-    describe "evaluating boolean type-check primitives" $ do
+    describe "evaluating boolean type-check primitive" $ do
         it "should return #t if input evaluates to either #t or #f" $ do
             readExpr "(boolean? #t)" `shouldEvalAs` Bool True
             readExpr "(boolean? #f)" `shouldEvalAs` Bool True
@@ -55,6 +55,61 @@ spec = do
             readExpr "(integer? 3.14)" `shouldEvalAs` Bool False
             readExpr "(integer? '#t)" `shouldEvalAs` Bool False
             readExpr "(integer? 'foo)" `shouldEvalAs` Bool False
+
+    describe "evaluating list type check primitive" $ do
+        it "should be #t if given a list (duh)" $ do
+            readExpr "(list? '())" `shouldEvalAs` readExpr "#t"
+            readExpr "(list? '(1 2 3))" `shouldEvalAs` readExpr "#t"
+        it "should evaluate to #f if its an improper (dotted) list" $ do
+            readExpr "(list? '(foo . bar))" `shouldEvalAs` readExpr "#f"
+            readExpr "(list? '(. unf))" `shouldEvalAs` readExpr "#f"
+        it "should also evaluate to #f for other stuff" $ do
+            readExpr "(list? 'foo)" `shouldEvalAs` readExpr "#f"
+            readExpr "(list? 123)" `shouldEvalAs` readExpr "#f"
+            readExpr "(list? #\\space)" `shouldEvalAs` readExpr "#f"
+
+    describe "evaluating pair type check primitive" $ do
+        it "should not be a pair if its an empty list" $ do
+            readExpr "(pair? '())" `shouldEvalAs` readExpr "#f"
+        it "should be a pair if it is a list of at least one element" $ do
+            readExpr "(pair? '(1))" `shouldEvalAs` readExpr "#t"
+            readExpr "(pair? '(1 2 3))" `shouldEvalAs` readExpr "#t"
+            readExpr "(pair? '(foo . bar))" `shouldEvalAs` readExpr "#t"
+            readExpr "(pair? '(. bar))" `shouldEvalAs` readExpr "#t"
+        it "should evaluate to #f for other stuff" $ do
+            readExpr "(pair? 'foo)" `shouldEvalAs` readExpr "#f"
+            readExpr "(pair? 123)" `shouldEvalAs` readExpr "#f"
+            readExpr "(pair? #\\space)" `shouldEvalAs` readExpr "#f"
+
+    describe "evaluating vector type check primitive" $ do
+        it "should only be #t if given a vector" $ do
+            readExpr "(vector? #())" `shouldEvalAs` readExpr "#t"
+            readExpr "(vector? #(1 2 3))" `shouldEvalAs` readExpr "#t"
+            readExpr "(vector? '#(1 2 3))" `shouldEvalAs` readExpr "#t"
+            readExpr "(vector? '())" `shouldEvalAs` readExpr "#f"
+            readExpr "(vector? '(1 2 3))" `shouldEvalAs` readExpr "#f"
+            readExpr "(vector? '(foo . bar))" `shouldEvalAs` readExpr "#f"
+            readExpr "(vector? '(. unf))" `shouldEvalAs` readExpr "#f"
+            readExpr "(vector? 'foo)" `shouldEvalAs` readExpr "#f"
+            readExpr "(vector? 123)" `shouldEvalAs` readExpr "#f"
+            readExpr "(vector? #\\space)" `shouldEvalAs` readExpr "#f"
+
+    describe "evaluating string type check primitive" $ do
+        it "should should only return #t for strings" $ do
+            readExpr "(string? \"herro!\")" `shouldEvalAs` readExpr "#t"
+            readExpr "(string? '(\"hi\" \"there\"))" `shouldEvalAs` readExpr "#f"
+            readExpr "(string? 'hello)" `shouldEvalAs` readExpr "#f"
+            readExpr "(string? 12345)" `shouldEvalAs` readExpr "#f"
+
+    describe "evaluating char type check primitive" $ do
+        it "should should only return #t for characters" $ do
+            readExpr "(char? #\\x)" `shouldEvalAs` readExpr "#t"
+            readExpr "(char? #\\space)" `shouldEvalAs` readExpr "#t"
+            readExpr "(char? \"herro!\")" `shouldEvalAs` readExpr "#f"
+            readExpr "(char? '(1 2 3))" `shouldEvalAs` readExpr "#f"
+            readExpr "(char? 'hello)" `shouldEvalAs` readExpr "#f"
+            readExpr "(char? 12345)" `shouldEvalAs` readExpr "#f"
+
 
 -- Test helpers
 
