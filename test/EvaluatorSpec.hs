@@ -28,6 +28,33 @@ spec = do
             readExpr "(+ 2 (- 4 1))" `shouldEvalAs` Integer 5
             readExpr "(- (+ 4 6 3) 3 5 2)" `shouldEvalAs` Integer 3
 
+    describe "evaluating boolean type-check primitives" $ do
+        it "should return #t if input evaluates to either #t or #f" $ do
+            readExpr "(boolean? #t)" `shouldEvalAs` Bool True
+            readExpr "(boolean? #f)" `shouldEvalAs` Bool True
+            readExpr "(boolean? '#f)" `shouldEvalAs` Bool True
+        it "should return #f otherwise" $ do
+            readExpr "(boolean? 'nil)" `shouldEvalAs` Bool False
+            readExpr "(boolean? '())" `shouldEvalAs` Bool False
+            readExpr "(boolean? 123)" `shouldEvalAs` Bool False
+
+    describe "evaluating numeric type-check primitives" $ do
+        it "should be number if its either an integer or a real" $ do
+            readExpr "(number? 3.14)" `shouldEvalAs` Bool True
+            readExpr "(number? 3)" `shouldEvalAs` Bool True
+            readExpr "(number? '#t)" `shouldEvalAs` Bool False
+            readExpr "(number? 'foo)" `shouldEvalAs` Bool False
+        it "should be a real number if its either an integer or a real" $ do
+            readExpr "(real? 3.14)" `shouldEvalAs` Bool True
+            readExpr "(real? 3)" `shouldEvalAs` Bool True
+            readExpr "(real? '#t)" `shouldEvalAs` Bool False
+            readExpr "(real? 'foo)" `shouldEvalAs` Bool False
+        it "should be integer only if it's an integer" $ do
+            readExpr "(integer? 3)" `shouldEvalAs` Bool True
+            readExpr "(integer? 3.14)" `shouldEvalAs` Bool False
+            readExpr "(integer? '#t)" `shouldEvalAs` Bool False
+            readExpr "(integer? 'foo)" `shouldEvalAs` Bool False
+
 -- Test helpers
 
 shouldEvalAs :: LispVal -> LispVal -> Expectation
