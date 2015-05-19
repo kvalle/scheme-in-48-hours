@@ -15,6 +15,7 @@ spec = do
             String "foobar" `shouldEvalAs` String "foobar"
             Integer 42 `shouldEvalAs` Integer 42
             Real 3.1415 `shouldEvalAs` Real 3.1415
+            Character '(' `shouldEvalAs` Character '('
 
     describe "evaluating quotes" $ do
         it "should evaluate to the quoted value" $ do

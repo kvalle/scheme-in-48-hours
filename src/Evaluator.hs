@@ -9,11 +9,12 @@ eval val@(String _) = val
 eval val@(Integer _) = val
 eval val@(Real _) = val
 eval val@(Bool _) = val
+eval val@(Character _) = val
 eval (List [Atom "quote", val]) = val
-eval (List (Atom func : args)) = trace (show args) $ apply func $ map eval args
+eval (List (Atom func : args)) = apply func $ map eval args
 
 apply :: String -> [LispVal] -> LispVal
-apply func args = maybe (Bool False) ($ args) $ lookup func primitives
+apply func args = maybe (Atom "error") ($ args) $ lookup func primitives
 
 primitives :: [(String, [LispVal] -> LispVal)]
 primitives = [("+", numericBinop (+)),
