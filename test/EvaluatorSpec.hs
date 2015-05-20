@@ -24,10 +24,12 @@ spec = do
             readExpr "''foo" `shouldEvalAs` readExpr "'foo"
 
     describe "evaluating calls to primitive functions" $ do
-        it "should do addition" $ do
+        it "should work with integers" $ do
             readExpr "(+ 2 2)" `shouldEvalAs` Integer 4
             readExpr "(+ 2 (- 4 1))" `shouldEvalAs` Integer 5
             readExpr "(- (+ 4 6 3) 3 5 2)" `shouldEvalAs` Integer 3
+        it "should work with radixes" $ do
+            readExpr "(+ #b101 #xA)" `shouldEvalAs` readExpr "15"
 
     describe "evaluating boolean type-check primitive" $ do
         it "should return #t if input evaluates to either #t or #f" $ do
