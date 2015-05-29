@@ -112,6 +112,15 @@ spec = do
             readExpr "(char? 'hello)" `shouldEvalAs` readExpr "#f"
             readExpr "(char? 12345)" `shouldEvalAs` readExpr "#f"
 
+    describe "evaluating symbols" $ do
+        it "should eval Atoms as symbols" $ do
+            readExpr "(symbol? 'foo)" `shouldEvalAs` readExpr "#t"
+            readExpr "(symbol? 'nil)" `shouldEvalAs` readExpr "#t"
+        it "should not eval other types as symbols" $ do
+            readExpr "(symbol? \"bar\")" `shouldEvalAs` readExpr "#f"
+            readExpr "(symbol? '())" `shouldEvalAs` readExpr "#f"
+            readExpr "(symbol? '(a b))" `shouldEvalAs` readExpr "#f"
+            readExpr "(symbol? #f)" `shouldEvalAs` readExpr "#f"
 
 -- Test helpers
 

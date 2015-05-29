@@ -26,6 +26,7 @@ primitives = [("+", numericBinop (+)),
               ("quotient", numericBinop quot),
               ("remainder", numericBinop rem),
               ("list?", isList),
+              ("symbol?", isSymbol),
               ("pair?", isPair),
               ("vector?", isVector),
               ("string?", isString),
@@ -45,6 +46,10 @@ unpackNum _ = 0
 isList :: [LispVal] -> LispVal
 isList [List _] = Bool True
 isList _        = Bool False
+
+isSymbol :: [LispVal] -> LispVal
+isSymbol [Atom _] = Bool True
+isSymbol _        = Bool False
 
 isVector :: [LispVal] -> LispVal
 isVector [Vector _] = Bool True
