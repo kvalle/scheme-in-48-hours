@@ -1,7 +1,5 @@
 module Evaluator where
 
-import Debug.Trace
-
 import AST
 
 eval :: LispVal -> LispVal
@@ -13,6 +11,7 @@ eval val@(Vector _) = val
 eval val@(Character _) = val
 eval (List [Atom "quote", val]) = val
 eval (List (Atom func : args)) = apply func $ map eval args
+eval x = Atom "eval-error"
 
 apply :: String -> [LispVal] -> LispVal
 apply func args = maybe (Atom "error") ($ args) $ lookup func primitives
@@ -26,7 +25,6 @@ primitives = [("+", numericBinop (+)),
               ("quotient", numericBinop quot),
               ("remainder", numericBinop rem),
               ("list?", isList),
-              ("symbol?", isSymbol),
               ("pair?", isPair),
               ("vector?", isVector),
               ("string?", isString),
@@ -34,7 +32,10 @@ primitives = [("+", numericBinop (+)),
               ("number?", isNumber),
               ("real?", isReal),
               ("integer?", isInteger),
-              ("boolean?", isBoolean)]
+              ("boolean?", isBoolean),
+              ("symbol?", isSymbol),
+              ("symbol->string", symbolToFromString),
+              ("string->symbol", symbolToFromString)]
 
 numericBinop :: (Integer -> Integer -> Integer) -> [LispVal] -> LispVal
 numericBinop op params = Integer $ foldl1 op $ map unpackNum params
@@ -50,6 +51,10 @@ isList _        = Bool False
 isSymbol :: [LispVal] -> LispVal
 isSymbol [Atom _] = Bool True
 isSymbol _        = Bool False
+
+symbolToFromString :: [LispVal] -> LispVal
+symbolToFromString [Atom str]   = String str
+symbolToFromString [String str] = Atom str
 
 isVector :: [LispVal] -> LispVal
 isVector [Vector _] = Bool True

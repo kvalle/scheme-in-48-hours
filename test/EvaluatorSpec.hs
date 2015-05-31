@@ -1,5 +1,6 @@
 module EvaluatorSpec where
 
+import Test.Hspec.QuickCheck (prop)
 import Test.Hspec
 
 import AST
@@ -121,6 +122,18 @@ spec = do
             readExpr "(symbol? '())" `shouldEvalAs` readExpr "#f"
             readExpr "(symbol? '(a b))" `shouldEvalAs` readExpr "#f"
             readExpr "(symbol? #f)" `shouldEvalAs` readExpr "#f"
+        it "should convert symbols to strings" $ do
+            readExpr "(symbol->string 'foobar)" `shouldEvalAs` (String "foobar")
+            readExpr "(symbol->string 'nil)" `shouldEvalAs` (String "nil")
+        it "should convert strings to symbols" $ do
+            readExpr "(symbol->string \"foobar\")" `shouldEvalAs` (Atom "foobar")
+            readExpr "(symbol->string \"nil\")" `shouldEvalAs` (Atom "nil")
+        prop "strings do not change by being convertet back/forth as symbols" $
+            (\str ->
+                let str' = filter (not . flip elem "\\\"") str
+                    expr = ("(symbol->string (string->symbol \"" ++ str' ++ "\"))")
+                in  eval (String str') == eval (readExpr expr))
+
 
 -- Test helpers
 
